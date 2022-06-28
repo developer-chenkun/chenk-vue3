@@ -21,7 +21,8 @@ class RefImp<T> {
   set value(newValue) {
     if (hasChanged(newValue, this._rawValue)) {
       this._rawValue = newValue;
-      this.value = isObject(newValue) ? reactive(newValue) : newValue;
+      this._value = isObject(newValue) ? reactive(newValue) : newValue;
+
       triggerEffects(this.dep);
     }
   }
