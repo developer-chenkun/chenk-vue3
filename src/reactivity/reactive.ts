@@ -1,4 +1,4 @@
-import { mutableHanders, readonlyHanders } from "./baseHandlers";
+import { mutableHanders, readonlyHanders, shallowReadonlyHanders } from "./baseHandlers";
 
 export function reactive(raw) {
   return new Proxy(raw, mutableHanders);
@@ -7,6 +7,11 @@ export function reactive(raw) {
 // readonly
 export function readonly(raw) {
   return new Proxy(raw, readonlyHanders);
+}
+
+// shallowReandonly
+export function shallowReadonly(raw) {
+  return new Proxy(raw, shallowReadonlyHanders);
 }
 
 // 枚举
@@ -21,7 +26,11 @@ export function isReactive(value) {
   return !!value[ReactiveFlags.IS_REACTIVE];
 }
 
-export function isReadOnly(value) {
+export function isReadonly(value) {
   // readonly
   return !!value[ReactiveFlags.IS_READONLY];
+}
+
+export function isProxy(value) {
+  return isReactive(value) || isReadonly(value);
 }

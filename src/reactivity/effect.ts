@@ -1,7 +1,6 @@
-import { extend } from "../shared";
 let activeEffect;
 let shouldTrack;
-class reactiveEffect {
+export class reactiveEffect {
   private _fn: Function;
   deps = [];
   active = true;
@@ -16,7 +15,7 @@ class reactiveEffect {
     }
     shouldTrack = true;
     activeEffect = this;
-    const res = this._fn();
+    const res = this._fn(); // 调用effect中的fn 触发代理对象的get完成依赖收集
     shouldTrack = false;
     return res;
   }
@@ -44,8 +43,8 @@ const targetMap = new Map();
 export function track(target, key) {
   // target -> key -> dep
 
-  if (!activeEffect) return;
-  if (!shouldTrack) return;
+  // if (!activeEffect) return;
+  // if (!shouldTrack) return;
 
   let depsMap = targetMap.get(target);
   if (!depsMap) {
@@ -59,6 +58,20 @@ export function track(target, key) {
     dep = new Set();
     depsMap.set(key, dep);
   }
+
+  // 优化变量自增的时候又重新触发收集依赖
+  // if (dep.has(activeEffect)) return;
+  // dep.add(activeEffect);
+
+  // activeEffect.deps.push(dep);
+  trackEffects(dep);
+}
+
+export function isTracking() {
+  return shouldTrack && activeEffect !== undefined;
+}
+
+export function trackEffects(dep) {
   if (dep.has(activeEffect)) return;
   dep.add(activeEffect);
 
@@ -70,6 +83,17 @@ export function trigger(target, key) {
   let depsMap = targetMap.get(target);
   let dep = depsMap.get(key);
 
+  // for (const effect of dep) {
+  //   if (effect.scheduler) {
+  //     effect.scheduler();
+  //   } else {
+  //     effect.run();
+  //   }
+  // }
+  triggerEffects(dep);
+}
+
+export function triggerEffects(dep) {
   for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler();
