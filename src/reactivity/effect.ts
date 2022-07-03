@@ -45,6 +45,7 @@ export function track(target, key) {
 
   // if (!activeEffect) return;
   // if (!shouldTrack) return;
+  if (!isTracking()) return;
 
   let depsMap = targetMap.get(target);
   if (!depsMap) {

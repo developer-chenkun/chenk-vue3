@@ -1,5 +1,5 @@
 import { extend, isObject } from "../shared";
-import { isTracking, track, trigger } from "./effect";
+import { track, trigger } from "./effect";
 import { reactive, ReactiveFlags, readonly } from "./reactive";
 
 function createGetter(isReadonly = false, shallow = false) {
@@ -23,7 +23,7 @@ function createGetter(isReadonly = false, shallow = false) {
     }
 
     // TODO 依赖收集
-    if (!isReadonly && isTracking()) {
+    if (!isReadonly) {
       track(target, key);
     }
     return res;
