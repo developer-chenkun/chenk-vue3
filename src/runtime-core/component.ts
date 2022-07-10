@@ -5,6 +5,7 @@ export function createComponentInstance(vnode: any) {
   const component = {
     vnode,
     type: vnode.type,
+    setupState: {},
   };
   return component;
 }
@@ -19,8 +20,22 @@ export function setupComponent(instance: any) {
 }
 
 function setupStatefulComponent(instance: any) {
-  const component = instance.type;
+  instance.proxy = new Proxy(
+    {},
+    {
+      get(target, key) {
+        const { setupState } = instance;
+        if (key in setupState) {
+          return setupState[key];
+        }
+        if (key === "$el") {
+          return instance.vnode.el;
+        }
+      },
+    }
+  );
 
+  const component = instance.type;
   const { setup } = component;
   if (setup) {
     // setupResult 可以为object 也可以为function

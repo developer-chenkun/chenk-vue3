@@ -6,6 +6,8 @@ export function render(vnode, container) {
 }
 
 function patch(vnode: any, container: any) {
+  console.log("vnode", vnode);
+
   // 判断vnode是不是element
   // console.log(vnode.type);
   if (typeof vnode.type === "string") {
@@ -25,12 +27,18 @@ function mountComponent(vnode: any, container: any) {
 
   setupComponent(instance);
 
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, vnode, container);
 }
 
-function setupRenderEffect(instance: any, container: any) {
-  const subTree = instance.render();
+function setupRenderEffect(instance: any, vnode: any, container: any) {
+  const { proxy } = instance;
+  const subTree = instance.render.call(proxy);
+  console.log("subTree", subTree);
+
   patch(subTree, container);
+  console.log("vnode -- subTree", vnode, subTree);
+
+  vnode.el = subTree.el;
 }
 
 // 处理element
@@ -38,9 +46,11 @@ function processElement(vnode: any, container: any) {
   // init
   mountElement(vnode, container);
 }
+
 function mountElement(vnode: any, container: any) {
   const { props, children } = vnode;
-  const el = document.createElement(vnode.type);
+  // 存储el
+  const el = (vnode.el = document.createElement(vnode.type));
   // 处理props
   for (const key in props) {
     const val = props[key];
