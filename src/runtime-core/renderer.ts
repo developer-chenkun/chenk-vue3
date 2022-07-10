@@ -6,8 +6,6 @@ export function render(vnode, container) {
 }
 
 function patch(vnode: any, container: any) {
-  console.log("vnode", vnode);
-
   // 判断vnode是不是element
   // console.log(vnode.type);
   if (typeof vnode.type === "string") {
@@ -33,10 +31,10 @@ function mountComponent(vnode: any, container: any) {
 function setupRenderEffect(instance: any, vnode: any, container: any) {
   const { proxy } = instance;
   const subTree = instance.render.call(proxy);
-  console.log("subTree", subTree);
+  // console.log("subTree", subTree);
 
   patch(subTree, container);
-  console.log("vnode -- subTree", vnode, subTree);
+  // console.log("vnode -- subTree", vnode, subTree);
 
   vnode.el = subTree.el;
 }
@@ -54,7 +52,14 @@ function mountElement(vnode: any, container: any) {
   // 处理props
   for (const key in props) {
     const val = props[key];
-    el.setAttribute(key, val);
+    const isOn = (key: string) => /^on[A-Z]/.test(key);
+    if (isOn(key)) {
+      // 注册事件
+      const event = key.slice(2).toLowerCase();
+      el.addEventListener(event, val);
+    } else {
+      el.setAttribute(key, val);
+    }
   }
 
   // children为sring类型或array

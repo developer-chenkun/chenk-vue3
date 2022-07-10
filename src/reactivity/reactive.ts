@@ -1,17 +1,18 @@
+import { isObject } from "../shared/index";
 import { mutableHanders, readonlyHanders, shallowReadonlyHanders } from "./baseHandlers";
 
 export function reactive(raw) {
-  return new Proxy(raw, mutableHanders);
+  return createReactiveObject(raw, mutableHanders);
 }
 
 // readonly
 export function readonly(raw) {
-  return new Proxy(raw, readonlyHanders);
+  return createReactiveObject(raw, readonlyHanders);
 }
 
 // shallowReandonly
 export function shallowReadonly(raw) {
-  return new Proxy(raw, shallowReadonlyHanders);
+  return createReactiveObject(raw, shallowReadonlyHanders);
 }
 
 // 枚举
@@ -33,4 +34,12 @@ export function isReadonly(value) {
 
 export function isProxy(value) {
   return isReactive(value) || isReadonly(value);
+}
+
+function createReactiveObject(target, baseHandles) {
+  if (!isObject(target)) {
+    console.warn(`target ${target}必须是一个对象`);
+    return;
+  }
+  return new Proxy(target, baseHandles);
 }
