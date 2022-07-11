@@ -1,5 +1,5 @@
 export function emit(instance, event, ...args) {
-  console.log(instance);
+  // console.log(instance);
 
   const { props } = instance;
 

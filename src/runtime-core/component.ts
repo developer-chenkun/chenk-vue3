@@ -6,13 +6,17 @@ import { PublicInstanceHandlers } from "./componentPublicInstance";
 import { initSlots } from "./componentSlots";
 
 // 创建组件实例
-export function createComponentInstance(vnode: any) {
+export function createComponentInstance(vnode: any, parent) {
+  console.log("createComponentInstance", parent);
+
   const component = {
     vnode,
     type: vnode.type,
     setupState: {},
     props: {},
     slots: {},
+    provides: parent ? parent.provides : {},
+    parent,
     emit: (event) => {},
   };
   component.emit = emit.bind(null, component);
@@ -51,10 +55,11 @@ function setupStatefulComponent(instance: any) {
   const { setup } = component;
   if (setup) {
     // setupResult 可以为object 也可以为function
+    setCurrentInstance(instance);
     const setupResult = setup(shallowReadonly(instance.props), {
       emit: instance.emit,
     });
-
+    setCurrentInstance(null);
     handleSetupResult(instance, setupResult);
   }
 }
@@ -71,4 +76,13 @@ function finishComponentSetup(instance: any) {
   if (component.render) {
     instance.render = component.render;
   }
+}
+
+let currentInstance = null;
+export function getCurrentInstance() {
+  return currentInstance;
+}
+
+export function setCurrentInstance(instance) {
+  currentInstance = instance;
 }

@@ -1,30 +1,40 @@
 import { isObject } from "./../shared/index";
 import { createComponentInstance, setupComponent } from "./component";
+import { Fragment, Text } from "./vnode";
 
-export function render(vnode, container) {
-  patch(vnode, container);
+export function render(vnode, container, parentComponent) {
+  patch(vnode, container, parentComponent);
 }
 
-function patch(vnode: any, container: any) {
+function patch(vnode: any, container: any, parentComponent) {
   // 判断vnode是不是element
   // console.log(vnode.type);
-  if (typeof vnode.type === "string") {
-    // 处理组件
-    processElement(vnode, container);
-  } else if (isObject(vnode.type)) {
-    // 处理element
-    processComponent(vnode, container);
+  switch (vnode.type) {
+    case Fragment:
+      processFragment(vnode, container, parentComponent);
+      break;
+    case Text:
+      processText(vnode, container);
+    default:
+      if (typeof vnode.type === "string") {
+        // 处理组件
+        processElement(vnode, container, parentComponent);
+      } else if (isObject(vnode.type)) {
+        // 处理element
+        processComponent(vnode, container, parentComponent);
+      }
+      break;
   }
 }
-function processComponent(vnode: any, container: any) {
-  mountComponent(vnode, container);
+function processComponent(vnode: any, container: any, parentComponent) {
+  mountComponent(vnode, container, parentComponent);
 }
-function mountComponent(vnode: any, container: any) {
+function mountComponent(vnode: any, container: any, parentComponent) {
   // 创建组件实例
-  const instance = createComponentInstance(vnode);
-
+  const instance = createComponentInstance(vnode, parentComponent);
+  // 初始化组件props slots $el emit等并创建组件代理对象并执行setup方法拿到执行结果并挂载到组件实例上
   setupComponent(instance);
-
+  // 执行组件render方法获取虚拟节点并将虚拟节点重新放入patch中执行
   setupRenderEffect(instance, vnode, container);
 }
 
@@ -33,19 +43,19 @@ function setupRenderEffect(instance: any, vnode: any, container: any) {
   const subTree = instance.render.call(proxy);
   // console.log("subTree", subTree);
 
-  patch(subTree, container);
+  patch(subTree, container, instance);
   // console.log("vnode -- subTree", vnode, subTree);
 
   vnode.el = subTree.el;
 }
 
 // 处理element
-function processElement(vnode: any, container: any) {
+function processElement(vnode: any, container: any, parentComponent) {
   // init
-  mountElement(vnode, container);
+  mountElement(vnode, container, parentComponent);
 }
 
-function mountElement(vnode: any, container: any) {
+function mountElement(vnode: any, container: any, parentComponent) {
   const { props, children } = vnode;
   // 存储el
   const el = (vnode.el = document.createElement(vnode.type));
@@ -65,7 +75,7 @@ function mountElement(vnode: any, container: any) {
   // children为sring类型或array
   if (Array.isArray(children)) {
     // TODO
-    mountChildren(vnode, el);
+    mountChildren(vnode, el, parentComponent);
   } else if (typeof children === "string") {
     el.textContent = children;
   }
@@ -73,8 +83,17 @@ function mountElement(vnode: any, container: any) {
   container.append(el);
 }
 
-function mountChildren(vnode, container) {
+function mountChildren(vnode, container, parentComponent) {
   vnode.children.forEach((v) => {
-    patch(v, container);
+    patch(v, container, parentComponent);
   });
+}
+
+function processFragment(vnode: any, container: any, parentComponent) {
+  mountChildren(vnode, container, parentComponent);
+}
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  container.append(textNode);
 }
