@@ -19,6 +19,7 @@ export function createComponentInstance(vnode: any, parent) {
     parent,
     emit: (event) => {},
   };
+  // init emit
   component.emit = emit.bind(null, component);
   return component;
 }

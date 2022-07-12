@@ -4,7 +4,7 @@ export function initSlots(instance: any, children: any) {
 
   const slots = {};
   for (let key in children) {
-    // console.log("slotkey", key);
+    // console.log("slotkey", key, instance, children);
 
     const value = children[key];
     // console.log(value);
@@ -13,5 +13,7 @@ export function initSlots(instance: any, children: any) {
   }
 
   instance.slots = slots;
+  console.log(slots);
+
   // console.log(instance);
 }

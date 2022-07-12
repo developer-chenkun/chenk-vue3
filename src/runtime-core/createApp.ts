@@ -1,5 +1,5 @@
-import { render } from "./renderer";
 import { createVnode } from "./vnode";
+import { render } from "../runtime-dom/index";
 
 export function createApp(rootComponent) {
   return {
