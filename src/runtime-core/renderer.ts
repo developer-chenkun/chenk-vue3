@@ -1,20 +1,22 @@
 import { isObject } from "./../shared/index";
 import { createComponentInstance, setupComponent } from "./component";
+import { createAppApi } from "./createApp";
 import { Fragment, Text } from "./vnode";
 
 // 自定义渲染器
 export function createRender(option) {
   const { createElement, patchProps, insert } = option;
 
-  return function render(vnode, container, parentComponent) {
+  function render(vnode, container, parentComponent) {
     patch(vnode, container, parentComponent);
-  };
+  }
 
   function patch(vnode: any, container: any, parentComponent) {
     // 判断vnode是不是element
     // console.log(vnode.type);
     switch (vnode.type) {
       case Fragment:
+        // 处理插槽
         processFragment(vnode, container, parentComponent);
         break;
       case Text:
@@ -105,4 +107,9 @@ export function createRender(option) {
     const textNode = (vnode.el = document.createTextNode(children));
     container.append(textNode);
   }
+
+  return {
+    render,
+    createApp: createAppApi(render),
+  };
 }

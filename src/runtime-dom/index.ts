@@ -1,4 +1,4 @@
-import { createRender } from "../runtime-core/index";
+import { createRender } from "../runtime-core";
 
 function createElement(type) {
   return document.createElement(type);
@@ -19,7 +19,7 @@ function insert(el, parent) {
   parent.append(el);
 }
 
-export const render = createRender({
+export const { render, createApp } = createRender({
   createElement,
   patchProps,
   insert,
