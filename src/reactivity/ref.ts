@@ -15,11 +15,13 @@ class RefImp<T> {
   }
 
   get value() {
+    // debugger;
     trackRefValue(this);
     return this._value;
   }
 
   set value(newValue) {
+    // debugger;
     if (hasChanged(newValue, this._rawValue)) {
       this._rawValue = newValue;
       this._value = isObject(newValue) ? reactive(newValue) : newValue;

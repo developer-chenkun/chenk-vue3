@@ -12,6 +12,10 @@ export function createRender(option) {
     patch(null, vnode, container, parentComponent);
   }
 
+  function hostPatchProps(el, key, prevProp, nextProp) {
+    patchProps(el, key, prevProp, nextProp);
+  }
+
   function patch(prevnode: any, vnode: any, container: any, parentComponent) {
     // 判断vnode是不是element
     // console.log(vnode.type);
@@ -33,6 +37,11 @@ export function createRender(option) {
         break;
     }
   }
+
+  /**
+   *
+   * 初始化流程
+   */
   function processComponent(prevnode: any, vnode: any, container: any, parentComponent) {
     mountComponent(prevnode, vnode, container, parentComponent);
   }
@@ -63,7 +72,6 @@ export function createRender(option) {
         const subTree = instance.render.call(proxy);
         const prevSubTree = instance.subTree;
         instance.subTree = subTree;
-
         patch(prevSubTree, subTree, container, instance);
       }
     });
@@ -77,26 +85,6 @@ export function createRender(option) {
     } else {
       // update
       patchElement(prevnode, vnode, container);
-    }
-  }
-
-  // 更新Element
-  function patchElement(prevnode: any, vnode: any, container: any) {
-    console.log("patchElement");
-    console.log("n1", prevnode);
-    console.log("n2", vnode);
-    const oldProps = prevnode.props || {};
-    const newProps = vnode.props || {};
-    const el = (prevnode.el = vnode.el);
-    patchProp(oldProps, newProps, el);
-  }
-  // 对比props
-  function patchProp(oldProps, newProps, el) {
-    for (const key in newProps) {
-      const prevProp = oldProps[key];
-      const nextProp = newProps[key];
-      if (prevProp !== nextProp) {
-      }
     }
   }
 
@@ -118,7 +106,7 @@ export function createRender(option) {
     // 处理props
     for (const key in props) {
       const val = props[key];
-      patchProps(el, key, val);
+      hostPatchProps(el, key, null, val);
     }
 
     // container.append(el);
@@ -131,13 +119,52 @@ export function createRender(option) {
     });
   }
 
+  // 处理插槽
   function processFragment(prevnode: any, vnode: any, container: any, parentComponent) {
     mountChildren(vnode, container, parentComponent);
   }
+  // 处理文字节点
   function processText(prevnode: any, vnode: any, container: any) {
     const { children } = vnode;
     const textNode = (vnode.el = document.createTextNode(children));
     container.append(textNode);
+  }
+
+  /**
+   * 更新流程
+   */
+  // 更新Element
+  function patchElement(prevnode: any, vnode: any, container: any) {
+    console.log("patchElement");
+    console.log("n1", prevnode);
+    console.log("n2", vnode);
+    const oldProps = prevnode.props || {};
+    const newProps = vnode.props || {};
+    const el = (vnode.el = prevnode.el);
+    patchProp(oldProps, newProps, el);
+    patchChildren(prevnode, vnode);
+  }
+  // 对比props
+  function patchProp(oldProps, newProps, el) {
+    if (oldProps !== newProps) {
+      for (const key in newProps) {
+        const prevProp = oldProps[key];
+        const nextProp = newProps[key];
+        if (prevProp !== nextProp) {
+          hostPatchProps(el, key, prevProp, nextProp);
+        }
+      }
+
+      for (const key in oldProps) {
+        if (!(key in newProps)) {
+          hostPatchProps(el, key, oldProps[key], null);
+        }
+      }
+    }
+  }
+
+  function patchChildren(prevnode, vnode) {
+    console.log("patch children");
   }
 
   return {
