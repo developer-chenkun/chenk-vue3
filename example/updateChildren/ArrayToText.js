@@ -3,7 +3,7 @@ import { h, ref } from "../../lib/guide-mini-vue.esm.js";
 const nextChildren = 'newChildren'
 const prevChildren = [h('div', {}, 'A'), h('div', {}, 'B')]
 
-export const ArrayToText = {
+export default{
   setup() {
 
     const isChange = ref(false)
