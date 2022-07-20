@@ -8,6 +8,7 @@ export function createVnode(type, props?, children?) {
     children,
     el: null,
     key: props && props.key,
+    component: null,
   };
 
   return vnode;
