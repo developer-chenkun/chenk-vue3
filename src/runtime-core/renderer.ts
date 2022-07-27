@@ -37,7 +37,7 @@ export function createRender(option) {
 
   function processComponent(prevnode: any, vnode: any, container: any, parentComponent) {
     if (!prevnode) {
-      mountComponent(prevnode, vnode, container, parentComponent);
+      mountComponent(vnode, container, parentComponent);
     } else {
       updateComponent(prevnode, vnode);
     }
@@ -67,7 +67,7 @@ export function createRender(option) {
    *
    * 初始化流程
    */
-  function mountComponent(prevnode: any, vnode: any, container: any, parentComponent) {
+  function mountComponent(vnode: any, container: any, parentComponent) {
     // 创建组件实例
     const instance = createComponentInstance(vnode, parentComponent);
     vnode.component = instance;

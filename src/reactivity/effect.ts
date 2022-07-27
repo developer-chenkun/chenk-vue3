@@ -2,11 +2,13 @@ let activeEffect;
 let shouldTrack;
 export class reactiveEffect {
   private _fn: Function;
-  deps = [];
+  deps = [];//保存的所有副作用[[],[],[]]
   active = true;
   onStop?: () => void;
-  constructor(fn, public scheduler?) {
+  public scheduler: Function | undefined;
+  constructor(fn, scheduler?:Function) {
     this._fn = fn;
+    this.scheduler = scheduler
   }
 
   run() {
@@ -60,11 +62,6 @@ export function track(target, key) {
     depsMap.set(key, dep);
   }
 
-  // 优化变量自增的时候又重新触发收集依赖
-  // if (dep.has(activeEffect)) return;
-  // dep.add(activeEffect);
-
-  // activeEffect.deps.push(dep);
   trackEffects(dep);
 }
 
@@ -77,20 +74,14 @@ export function trackEffects(dep) {
   dep.add(activeEffect);
 
   activeEffect.deps.push(dep);
+  console.log(dep);
+  
 }
 
 // 触发依赖
 export function trigger(target, key) {
   let depsMap = targetMap.get(target);
   let dep = depsMap.get(key);
-
-  // for (const effect of dep) {
-  //   if (effect.scheduler) {
-  //     effect.scheduler();
-  //   } else {
-  //     effect.run();
-  //   }
-  // }
   triggerEffects(dep);
 }
 
@@ -118,6 +109,9 @@ export function effect(fn, options: any = {}) {
 
   runner.effect = _effect;
   _effect.onStop = options.onStop;
+  console.dir(_effect.deps);
+  
+  
 
   return runner;
 }
