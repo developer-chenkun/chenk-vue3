@@ -7,6 +7,7 @@ class ComputedRefImp {
   constructor(getter) {
     this._getter = getter;
 
+    // getters中依赖的数据发生变化以后会通知当前的reactiveffect 当前effect定义了scheduler 则会调用scheduler将this._dirty设置为true 当再次读取计算属性的value值时会调用effect之中的run 方法获取最新值
     this._effect = new reactiveEffect(getter, () => {
       if (!this._dirty) {
         // TODO 清除计算属性缓存
