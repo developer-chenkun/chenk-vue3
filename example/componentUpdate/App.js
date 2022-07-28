@@ -16,6 +16,10 @@ export const App = {
     const changeCount = () => {
       count.value++;
     };
+    // setInterval(() => {
+    //   count.value++
+    //   msg.value = msg.value + count.value
+    // }, 1000)
 
     return { msg, changeChildProps, changeCount, count };
   },

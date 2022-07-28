@@ -13,26 +13,18 @@ export function shouldUpdateComponent(prevVNode: any, nextVNode: any) {
 const queue: any[] = [];
 let isQueueFlashPending = false;
 export function queueJobs(job) {
-  // console.log(job);
 
   if (!queue.includes(job)) {
     queue.push(job);
   }
-  console.log(queue);
-
   isQueueFlash();
 }
 
 function isQueueFlash() {
+  console.log('isQueueFlashPending', isQueueFlashPending);
+  
   if (isQueueFlashPending) return;
   isQueueFlashPending = true;
-  // Promise.resolve().then(() => {
-  //   isQueueFlashPending = false;
-  //   let job;
-  //   while ((job = queue.shift())) {
-  //     job && job();
-  //   }
-  // });
   nextTick(() => {
     isQueueFlashPending = false;
     let job;

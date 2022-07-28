@@ -78,20 +78,17 @@ export function createRender(option) {
   }
 
   function setupRenderEffect(instance: any, vnode: any, container: any) {
-    // 触发依赖收集
     instance.update = effect(
       () => {
         if (!instance.isMounted) {
-          // console.log("init");
 
           const { proxy } = instance;
-          const subTree = (instance.subTree = instance.render.call(proxy));
-
+          const subTree = (instance.subTree = instance.render.call(proxy));  // render函数会触发收集依赖
+          vnode.el = subTree.el;
           patch(null, subTree, container, instance, null);
           instance.isMounted = true;
-          vnode.el = subTree.el;
         } else {
-          // console.log("update");
+          console.log("update --pathc");
           const { proxy, next, vnode } = instance;
           if (next) {
             next.el = vnode.el;
@@ -104,6 +101,7 @@ export function createRender(option) {
         }
       },
       {
+        // 异步更新策略 理工reactiveEffect的调度器实现 if (scheduler) scheduler()
         scheduler() {
           queueJobs(instance.update);
         },
